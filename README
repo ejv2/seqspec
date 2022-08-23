@@ -1,0 +1,74 @@
+seqspec - analyze an nth-order sequence
+=======================================
+
+seqspec aims to analyze any given sequence and return a mathematical
+representation of it which can be used to algorithmically continue it. Although
+seqspec does not attempt to find an expression for the nth term, it can find an
+algorithmic basis for continuing the sequence through simple axiomatic rules.
+
+In a nutshell, a sequence of order one (largest exponent is one) will have the
+first difference be constant. Subsequently, a sequence of order two (largest
+exponent is two, a squared term) will have the second difference be constant.
+All other higher powers follow this simple pattern. Although it is quite
+difficult to format automatically an nth term expression algorithmically, it is
+trivial to construct a recursive algorithm which can, therefore, determine the
+appropriate term difference and, therefore, the sequence order.
+
+Below are some visual examples of term differences, as mentioned above:
+
+	1, 2, 3, 4	--> has a term difference of 1
+
+	1, 2, 4, 7	--> has a second term difference of 1
+
+	1, 8, 27, 64	--> has a third term difference of 6
+
+Visually, these examples could be written as the following:
+
+	1   2   3   4				0th
+	  1   1   1				1st
+
+
+	1   2   4   7				0th
+	  1   2   3				1st
+	    1   1				2nd
+
+
+	1      8      27      64      125	0th
+	   7      19      37      61		1st
+	     12      18      24			2nd
+	          6       6			3rd
+
+First, seqspec finds the order of a sequence by recursively computing term
+differences until a constant diff is found. For each iteration, a buffer of
+length one less than the previous is allocated. The algorithm terminates either
+if a buffer of length one is discovered, or a constant difference is discovered
+first.
+
+This specific implementation places an arbitrary limit on the number of
+iterations at 255 iterations, meaning that the largest possible sequence would be:
+
+	an^255 + bn^254 + ... + yn + z
+
+which surely ought to be more than enough (after all, who has any use for an
+equation of the 255th order?). The number of iterations corresponds to the
+order of the equation.
+
+This method also gracefully handles cases that are normally edge cases:
+
+	0  0  0  0	1st, but with zero coefficient
+
+	1  0 -1 -2	1st still, but with negative coefficient
+
+It even somewhat handles sequences that do not follow any kind of mathematical
+pattern:
+
+	-1 231 41 94	0th
+
+If no actual pattern can be detected, the algorithm will complete 255
+iterations and then halt, reporting that a sequence could not be detected. This
+is not enormously efficient, but is definitely decisive.
+
+NOTE: In the purely mathematical sense, the program reports that 0th order
+sequences are actually 1st order and treats linear and constant sequences
+equally, simply that one has a zero difference. This program is not designed to
+be mathematically rigorous, but more as a useful tool.
