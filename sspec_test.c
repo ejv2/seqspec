@@ -33,6 +33,11 @@ static const struct test tests[] = {
 	/* edge cases */
 	{{0, 0, 0}, 3, {.diff = 0, .order = 1}},
 	{{1, 0, -1, -2}, 4, {.diff = -1, .order = 1}},
+
+	/* failure cases */
+	{{-100, -101, 99}, 3, {.failure = 1}},                 /* no obvious sequence */
+	{{-1, 2, 2001}, 3, {.failure = 1}},                    /* no obvious sequence */
+	{{1, 4, 9}, 3, {.failure = 1}},                        /* buffer exhaustion */
 };
 
 void seq_print(const long *seq, size_t len)
@@ -61,6 +66,13 @@ int main(int argc, char **argv)
 			seq_print(tests[i].seq, tests[i].len);
 			printf(" (reported error)\n");
 
+			fail++;
+			continue;
+		}
+		if (tests[i].expects.failure) {
+			printf("[FAIL] %zu failed for input ", i);
+			seq_print(tests[i].seq, tests[i].len);
+			printf("(failed to report error :- diff: %d, ord: %d)\n", sspec_diff(s), sspec_ord(s));
 			fail++;
 			continue;
 		}
