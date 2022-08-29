@@ -4,6 +4,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 typedef struct {
@@ -11,6 +12,7 @@ typedef struct {
 	unsigned char order;
 
 	struct {
+		long diffs[255];
 	} state;
 } sspec_t;
 
@@ -21,7 +23,7 @@ typedef struct {
  * Increments iters for each iteration. Space starts at space=len and is
  * decremented for each recursion.
  */
-static int analyze_diffs(const long *seq, size_t len, size_t space, unsigned char *iters, int *errf)
+static int analyze_diffs(const long *seq, size_t len, size_t space, unsigned char *iters, int *errf, long *diffbuf)
 {
 	size_t i;
 	int recurse = 0;
@@ -44,9 +46,10 @@ static int analyze_diffs(const long *seq, size_t len, size_t space, unsigned cha
 			recurse = 1;
 		}
 	}
+	diffbuf[*iters - 1] = diffs[space - 1];
 
 	if (recurse)
-		diff = analyze_diffs(diffs, space, space-1, iters, errf);
+		diff = analyze_diffs(diffs, space, space-1, iters, errf, diffbuf);
 
 	return diff;
 }
@@ -61,7 +64,7 @@ sspec_t *sspec_analyze(const long *seq, size_t len)
 
 	ret = malloc(sizeof(sspec_t));
 	ret->order = 0;
-	ret->diff = analyze_diffs(seq, len, len - 1, &ret->order, &err);
+	ret->diff = analyze_diffs(seq, len, len - 1, &ret->order, &err, ret->state.diffs);
 
 	if (err) {
 		free(ret);
@@ -79,4 +82,22 @@ int sspec_diff(sspec_t *spec)
 unsigned char sspec_ord(sspec_t *spec)
 {
 	return spec->order;
+}
+
+void sspec_continue(sspec_t* spec, const long* seq, size_t seqlen, long* buf, size_t buflen)
+{
+	long last = seq[seqlen - 1];
+	size_t i, j;
+
+	if (!spec || !seq || !buf)
+		return;
+
+	for (i = 0; i < buflen; i++) {
+		for (j = spec->order - 1; j > 0; j--) {
+			spec->state.diffs[j - 1] = spec->state.diffs[j - 1] + spec->state.diffs[j];
+		}
+
+		buf[i] = last + spec->state.diffs[0];
+		last = buf[i];
+	}
 }
