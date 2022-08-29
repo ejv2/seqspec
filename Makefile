@@ -30,7 +30,7 @@ clean:
 
 test: ${SLIB}
 	${CC} ${CFLAGS} -o test sspec_test.c libsspec.a
-	./test
+	valgrind ./test
 	rm test
 
 install: all
