@@ -14,8 +14,12 @@
 
 /*
  * Opaque handle to sspec sequence data.
- * Whenever returned as a pointer, it is the caller's responsibility to
- * free as though any other pointer.
+ * Whenever returned as a pointer, it is the caller's responsibility to free as
+ * though any other pointer.
+ *
+ * The original sequence buffer as used to obtain this handle *must* remain
+ * valid until this handle is no longer needed. A reference to the underlying
+ * buffer may be maintained by the library.
  */
 typedef struct seqspec sspec_t;
 
