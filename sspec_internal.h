@@ -16,6 +16,6 @@ sspec_t *sspec_analyze(const long *seq, size_t len);
 int sspec_diff(sspec_t *spec);
 unsigned char sspec_ord(sspec_t *spec);
 
-void sspec_continue(sspec_t* spec, const long* seq, size_t seqlen, long* buf, size_t buflen);
+void sspec_continue(sspec_t* spec, long* buf, size_t buflen);
 
 #endif

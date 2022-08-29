@@ -11,6 +11,9 @@ typedef struct {
 	int diff;
 	unsigned char order;
 
+	const long* seq;
+	size_t seqlen;
+
 	struct {
 		long diffs[255];
 	} state;
@@ -65,6 +68,8 @@ sspec_t *sspec_analyze(const long *seq, size_t len)
 	ret = malloc(sizeof(sspec_t));
 	ret->order = 0;
 	ret->diff = analyze_diffs(seq, len, len - 1, &ret->order, &err, ret->state.diffs);
+	ret->seq = seq;
+	ret->seqlen = len;
 
 	if (err) {
 		free(ret);
@@ -84,12 +89,12 @@ unsigned char sspec_ord(sspec_t *spec)
 	return spec->order;
 }
 
-void sspec_continue(sspec_t* spec, const long* seq, size_t seqlen, long* buf, size_t buflen)
+void sspec_continue(sspec_t* spec, long* buf, size_t buflen)
 {
-	long last = seq[seqlen - 1];
+	long last = spec->seq[spec->seqlen - 1];
 	size_t i, j;
 
-	if (!spec || !seq || !buf)
+	if (!spec || !buf)
 		return;
 
 	for (i = 0; i < buflen; i++) {
