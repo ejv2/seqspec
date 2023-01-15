@@ -28,9 +28,9 @@ ${OBJ}: ${HDR}
 clean:
 	rm -f *.o ${LIB} ${SLIB}
 
-test: ${SLIB}
-	${CC} ${CFLAGS} -o test sspec_test.c libsspec.a
-	valgrind ./test
+test: ${LIB}
+	${CC} ${CFLAGS} -fsanitize=address -fsanitize=undefined -o test sspec_test.c libsspec.a
+	./test
 	rm test
 
 install: all
